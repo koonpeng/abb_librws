@@ -720,6 +720,11 @@ public:
    */
   std::string getLogTextLatestEvent(const bool verbose = false);
 
+  /**
+   * \brief Major version of the RWS server.
+   */
+  int rws_version() const;
+
 private:
   /**
    * \brief A struct for representing conditions, for the evaluation of an attempted RWS communication.

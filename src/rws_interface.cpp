@@ -200,7 +200,15 @@ std::vector<cfg::moc::MechanicalUnit> RWSInterface::getCFGMechanicalUnits()
 
   for(size_t i = 0; i < instances.size(); ++i)
   {
-    std::vector<Poco::XML::Node*> attributes = xmlFindNodes(instances[i], XMLAttributes::CLASS_CFG_IA_T_LI);
+    std::vector<Poco::XML::Node*> attributes;
+    if (this->rws_client_.rws_version() >= 7)
+    {
+      attributes = xmlFindNodes(instances[i], XMLAttribute{"class", "cfg-ia-t"});
+    }
+    else
+    {
+      attributes = xmlFindNodes(instances[i], XMLAttributes::CLASS_CFG_IA_T_LI);
+    }
 
     cfg::moc::MechanicalUnit mechanical_unit;
 
@@ -910,14 +918,29 @@ RWSInterface::SystemInfo RWSInterface::getSystemInfo()
 
   RWSClient::RWSResult rws_result = rws_client_.getRobotWareSystem();
 
-  std::vector<Poco::XML::Node*> node_list = xmlFindNodes(rws_result.p_xml_document, XMLAttributes::CLASS_SYS_SYSTEM_LI);
+  std::vector<Poco::XML::Node*> node_list;
+  if (this->rws_client_.rws_version() >= 7)
+  {
+    node_list = xmlFindNodes(rws_result.p_xml_document, XMLAttribute{"class", "sys-system"});  
+  }
+  else
+  {
+    node_list = xmlFindNodes(rws_result.p_xml_document, XMLAttributes::CLASS_SYS_SYSTEM_LI);
+  }
   for (size_t i = 0; i < node_list.size(); ++i)
   {
     result.system_name = xmlFindTextContent(node_list.at(i), XMLAttributes::CLASS_NAME);
     result.robot_ware_version = xmlFindTextContent(node_list.at(i), XMLAttributes::CLASS_RW_VERSION_NAME);
   }
 
-  node_list = xmlFindNodes(rws_result.p_xml_document, XMLAttributes::CLASS_SYS_OPTION_LI);
+  if (this->rws_client_.rws_version() >= 7)
+  {
+    node_list = xmlFindNodes(rws_result.p_xml_document, XMLAttribute{"class", "sys-option"});  
+  }
+  else
+  {
+    node_list = xmlFindNodes(rws_result.p_xml_document, XMLAttributes::CLASS_SYS_OPTION_LI);
+  }
   for (size_t i = 0; i < node_list.size(); ++i)
   {
     result.system_options.push_back(xmlFindTextContent(node_list.at(i), XMLAttributes::CLASS_OPTION));

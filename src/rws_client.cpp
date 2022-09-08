@@ -288,7 +288,15 @@ RWSClient::RWSResult RWSClient::getSpeedRatio()
 
 RWSClient::RWSResult RWSClient::getPanelControllerState()
 {
-  std::string uri = Resources::RW_PANEL_CTRLSTATE;
+  std::string uri;
+  if (this->rws_version() >= 7)
+  {
+    uri = "/rw/panel/ctrl-state";
+  }
+  else
+  {
+    uri = Resources::RW_PANEL_CTRLSTATE;
+  }
 
   EvaluationConditions evaluation_conditions;
   evaluation_conditions.parse_message_into_xml = true;
@@ -766,6 +774,18 @@ std::string RWSClient::getLogText(const bool verbose)
 std::string RWSClient::getLogTextLatestEvent(const bool verbose)
 {
   return (log_.size() == 0 ? "" : log_[0].toString(verbose, 0));
+}
+
+int RWSClient::rws_version() const
+{
+  // Guess the RWS version from the protocol.
+  switch (this->protocol())
+  {
+    case POCOClient::Protocol::HTTPS:
+      return 7;
+    default:
+      return 6;
+  }
 }
 
 std::string RWSClient::generateConfigurationPath(const std::string& topic, const std::string& type)

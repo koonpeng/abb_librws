@@ -44,6 +44,8 @@
 #include "Poco/Net/WebSocket.h"
 #include "Poco/SharedPtr.h"
 
+#include <memory>
+
 namespace abb
 {
 namespace rws
@@ -54,6 +56,11 @@ namespace rws
 class POCOClient
 {
 public:
+  enum Protocol
+  {
+    HTTP, HTTPS
+  };
+
   /**
    * \brief A struct for containing the result of a communication.
    */
@@ -255,11 +262,11 @@ public:
              const std::string& username,
              const std::string& password)
   :
-  http_client_session_(ip_address, port),
+  http_client_session_(POCOClient::make_http_client(ip_address, port)),
   http_credentials_(username, password)
   {
-    http_client_session_.setKeepAlive(true);
-    http_client_session_.setTimeout(Poco::Timespan(DEFAULT_HTTP_TIMEOUT));
+    http_client_session_->setKeepAlive(true);
+    http_client_session_->setTimeout(Poco::Timespan(DEFAULT_HTTP_TIMEOUT));
   }
 
   /**
@@ -316,8 +323,8 @@ public:
    */
   void setHTTPTimeout(const Poco::Int64 timeout)
   {
-    http_client_session_.setTimeout(Poco::Timespan(timeout));
-    http_client_session_.reset();
+    http_client_session_->setTimeout(Poco::Timespan(timeout));
+    http_client_session_->reset();
   }
 
   /**
@@ -371,7 +378,29 @@ public:
                                    const std::string& substring_start,
                                    const std::string& substring_end);
 
+  /**
+   * \brief Returns the protocol used by the client
+   */
+  inline Protocol protocol() const
+  {
+    if (this->http_client_session_->secure())
+    {
+      return Protocol::HTTPS;
+    }
+    else
+    {
+      return Protocol::HTTP;
+    }
+  }
+
 private:
+  /**
+   * \brief Probes the robot and creates a new http or https client session depending on
+   * the version of RWS.
+   */
+  static std::unique_ptr<Poco::Net::HTTPClientSession> make_http_client(
+    const std::string& ip_address, const Poco::UInt16 port);
+
   /**
    * \brief A method for making a HTTP request.
    *
@@ -459,7 +488,7 @@ private:
   /**
    * \brief A HTTP client session.
    */
-  Poco::Net::HTTPClientSession http_client_session_;
+  std::unique_ptr<Poco::Net::HTTPClientSession> http_client_session_;
 
   /**
    * \brief HTTP credentials for the remote server's access authentication process.
