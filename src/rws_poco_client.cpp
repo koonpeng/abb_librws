@@ -238,25 +238,28 @@ POCOClient::POCOResult POCOClient::httpDelete(const std::string& uri)
 std::unique_ptr<Poco::Net::HTTPClientSession> POCOClient::make_http_client(
   const std::string& ip_address, const Poco::UInt16 port)
 {
-  // first try https
-  Poco::Net::Context::Params params{};
-  // TODO: Allow to specify cert
-  params.verificationMode = Poco::Net::Context::VERIFY_NONE;
-  auto context = Poco::makeAuto<Poco::Net::Context>(Poco::Net::Context::Usage::TLS_CLIENT_USE, params);
-  auto https_client = std::make_unique<Poco::Net::HTTPSClientSession>(ip_address, port, context);
+  // first try http because the server in rws6 does not response to TLS.
+  auto http_client = std::make_unique<Poco::Net::HTTPClientSession>(ip_address, port);
   Poco::Net::HTTPRequest req{"GET", "/rw/system"};
   try
   {
     // don't care about the response, just test if connection is possible
-    https_client->sendRequest(req);
-    return https_client;
+    http_client->sendRequest(req);
+    Poco::Net::HTTPResponse resp;
+    http_client->receiveResponse(resp);
+    return http_client;
   }
-  catch(const Poco::Net::ConnectionRefusedException& e)
+  catch(const Poco::Net::ConnectionResetException&)
   {
-    // connection refused, assume that it is a http-only server.
+    // server rejected connection, assume that it is a RWS 6 server (http only).
   }
 
-  return std::make_unique<Poco::Net::HTTPClientSession>(ip_address, port);
+  // If http fails, assume that it is RWS >= 7 (https).
+  // TODO: Allow to specify cert
+  Poco::Net::Context::Params params{};
+  params.verificationMode = Poco::Net::Context::VERIFY_NONE;
+  auto context = Poco::makeAuto<Poco::Net::Context>(Poco::Net::Context::Usage::TLS_CLIENT_USE, params);
+  return std::make_unique<Poco::Net::HTTPSClientSession>(ip_address, port, context);
 }
 
 POCOClient::POCOResult POCOClient::makeHTTPRequest(const std::string& method,
