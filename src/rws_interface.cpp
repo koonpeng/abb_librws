@@ -101,7 +101,15 @@ std::vector<cfg::moc::Arm> RWSInterface::getCFGArms()
 
   for(size_t i = 0; i < instances.size(); ++i)
   {
-    std::vector<Poco::XML::Node*> attributes = xmlFindNodes(instances[i], XMLAttributes::CLASS_CFG_IA_T_LI);
+    std::vector<Poco::XML::Node*> attributes;
+    if (this->rws_client_.rws_version() >= 7)
+    {
+      attributes = xmlFindNodes(instances[i], XMLAttribute("class", "cfg-ia-t"));
+    }
+    else
+    {
+      attributes = xmlFindNodes(instances[i], XMLAttributes::CLASS_CFG_IA_T_LI);
+    }
 
     cfg::moc::Arm arm;
 
@@ -264,7 +272,15 @@ std::vector<cfg::sys::MechanicalUnitGroup> RWSInterface::getCFGMechanicalUnitGro
 
   for(size_t i = 0; i < instances.size(); ++i)
   {
-    std::vector<Poco::XML::Node*> attributes = xmlFindNodes(instances[i], XMLAttributes::CLASS_CFG_IA_T_LI);
+    std::vector<Poco::XML::Node*> attributes;
+    if (this->rws_client_.rws_version() >= 7)
+    {
+      attributes = xmlFindNodes(instances[i], XMLAttribute("class", "cfg-ia-t"));
+    }
+    else
+    {
+      attributes = xmlFindNodes(instances[i], XMLAttributes::CLASS_CFG_IA_T_LI);
+    }
 
     cfg::sys::MechanicalUnitGroup mechanical_unit_group;
 
@@ -312,7 +328,16 @@ std::vector<cfg::sys::PresentOption> RWSInterface::getCFGPresentOptions()
 
   for(size_t i = 0; i < instances.size(); ++i)
   {
-    std::vector<Poco::XML::Node*> attributes = xmlFindNodes(instances[i], XMLAttributes::CLASS_CFG_IA_T_LI);
+    std::vector<Poco::XML::Node*> attributes;
+    if (this->rws_client_.rws_version() >= 7)
+    {
+      attributes = xmlFindNodes(instances[i], XMLAttribute("class", "cfg-ia-t"));
+    }
+    else
+    {
+      attributes = xmlFindNodes(instances[i], XMLAttributes::CLASS_CFG_IA_T_LI);
+    }
+    
 
     cfg::sys::PresentOption present_option;
 
@@ -455,7 +480,15 @@ std::vector<cfg::moc::Single> RWSInterface::getCFGSingles()
 
   for(size_t i = 0; i < instances.size(); ++i)
   {
-    std::vector<Poco::XML::Node*> attributes = xmlFindNodes(instances[i], XMLAttributes::CLASS_CFG_IA_T_LI);
+    std::vector<Poco::XML::Node*> attributes;
+    if (this->rws_client_.rws_version() >= 7)
+    {
+      attributes = xmlFindNodes(instances[i], XMLAttribute("class", "cfg-ia-t"));
+    }
+    else
+    {
+      attributes = xmlFindNodes(instances[i], XMLAttributes::CLASS_CFG_IA_T_LI);
+    }
 
     cfg::moc::Single single;
 
@@ -548,7 +581,15 @@ std::vector<cfg::moc::Transmission> RWSInterface::getCFGTransmission()
 
   for(size_t i = 0; i < instances.size(); ++i)
   {
-    std::vector<Poco::XML::Node*> attributes = xmlFindNodes(instances[i], XMLAttributes::CLASS_CFG_IA_T_LI);
+    std::vector<Poco::XML::Node*> attributes;
+    if (this->rws_client_.rws_version() >= 7)
+    {
+      attributes = xmlFindNodes(instances[i], XMLAttribute("class", "cfg-ia-t"));
+    }
+    else
+    {
+      attributes = xmlFindNodes(instances[i], XMLAttributes::CLASS_CFG_IA_T_LI);
+    }
 
     cfg::moc::Transmission transmission;
 
