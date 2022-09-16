@@ -145,7 +145,15 @@ std::vector<cfg::moc::Joint> RWSInterface::getCFGJoints()
 
   for(size_t i = 0; i < instances.size(); ++i)
   {
-    std::vector<Poco::XML::Node*> attributes = xmlFindNodes(instances[i], XMLAttributes::CLASS_CFG_IA_T_LI);
+    std::vector<Poco::XML::Node*> attributes;
+    if (this->rws_client_.rws_version() >= 7)
+    {
+      attributes = xmlFindNodes(instances[i], XMLAttribute{"class", "cfg-ia-t"});
+    }
+    else
+    {
+      attributes = xmlFindNodes(instances[i], XMLAttributes::CLASS_CFG_IA_T_LI);
+    }
 
     cfg::moc::Joint joint;
 
